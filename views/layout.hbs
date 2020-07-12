@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{title}}</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+  {{#if user}}
+  <nav class="navbar navbar-dark bg-dark shadow-sm">
+    <a class="navbar-brand" href="#">Yourtechy OAuth2-jwt Server</a>
+    <div class="menu-bar">
+      Hello {{{ user.firstName }}}!
+      <div class="menu-bar-links">
+        {{#isnt location "home"}}
+        <a href="/">Home</a>
+        {{/isnt}}
+        {{#isnt location "register"}}
+        <a href="/register">Register</a>
+        {{/isnt}}
+        {{#isnt location "users"}}
+        <a href="/users">Users</a>
+        {{/isnt}}
+        <a href="/sign-out">Logout</a>
+      </div>
+    </div>
+  </nav>
+  {{/if}}
+  <div class="main ">
+    {{#if error.length}}
+    <div class="alert alert-danger">
+      {{error}}
+    </div>
+    {{/if}}
+    {{#if message.length}}
+    <div class="alert alert-info">
+      {{message}}
+    </div>
+    {{/if}}
+    {{{body}}}
+  </div>
+</body>
+<footer>
+  <span style="float:right;font-size:0.5em;">
+    Developer: yourtechy.com
+  </span>
+</footer>
+
+</html>
