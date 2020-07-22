@@ -1,3 +1,4 @@
+const debug = require('debug')('yourtechy-oauth2:app')
 // depends
 const cors = require('cors')
 const path = require('path')
@@ -48,29 +49,27 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
 
-/*
-* db settings
-*/
-
+// db settings
 DbContext.init().then(success => {
   if (!success) {
-    console.error("Server initialization failed! Exeunt...")
+    debug("Server initialization failed! Exeunt...")
     return
   }
-  // load DB models
-  require('./models/user')
   require('./models/oauth')
-
+  /**
+   * DB Connection is successful. Setup the rest of the server dependencies...
+   */
+  // setup routes
   app.use(require('./routes'))
-
   // handle 404 error, send to error handler
   app.use(function (req, res, next) {
+    if (false !== req.url.indexOf('access_token')) {
+      return res.status(400).send("Server error occurred");
+    }
     next(createError(404))
   })
-
   // system error handler
-
-  app.use(function (err, req, res, next) {
+  app.use((err, req, res, next) => {
     // show errors on non-prod deployment
     res.locals.message = err.message
     res.locals.error = !env.isProduction ? err : {}
@@ -79,7 +78,6 @@ DbContext.init().then(success => {
     res.render('error')
   })
 
-  console.log('Server started! Listening on port 3000...')
 })
 
 module.exports = app

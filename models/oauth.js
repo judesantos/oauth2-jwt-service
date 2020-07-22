@@ -1,45 +1,12 @@
+const debug = require('debug')('yourtechy-oauth:oauth')
+
 const JWT = require('jsonwebtoken')
 const fs = require('fs')
 const path = require("path")
-
-const DbContext = require('../db/context')
 const env = require('../env')
 
-//////////////////////////////////////////////////////////////////////////////////////
-// OAuth2 schema models
-//////////////////////////////////////////////////////////////////////////////////////
-const oauthDb = DbContext.useDb(env.mongoDb.oauth.name);
-
-let OAuthAccessTokenModel = oauthDb.model('OAuthAccessToken', new oauthDb.Schema({
-  user: { type: oauthDb.Schema.Types.ObjectId, ref: 'User' },
-  client: { type: oauthDb.Schema.Types.ObjectId, ref: 'OAuthClient' },
-  accessToken: { type: String },
-  accessTokenExpiresAt: { type: Date },
-  refreshToken: { type: String },
-  refreshTokenExpiresAt: { type: Date },
-  scope: { type: String }
-}, {
-  timestamps: true
-}), 'oauth_access_tokens')
-
-let OAuthCodeModel = oauthDb.model('OAuthCode', new oauthDb.Schema({
-  user: { type: oauthDb.Schema.Types.ObjectId, ref: 'User' },
-  client: { type: oauthDb.Schema.Types.ObjectId, ref: 'OAuthClient' },
-  authorizationCode: { type: String },
-  expiresAt: { type: Date },
-  scope: { type: String }
-}, {
-  timestamps: true
-}), 'oauth_auth_codes')
-
-let OAuthClientModel = oauthDb.model('OAuthClient', new oauthDb.Schema({
-  user: { type: oauthDb.Schema.Types.ObjectId, ref: 'User' },
-  clientId: { type: String },
-  clientSecret: { type: String },
-  grants: { type: Array },
-}, {
-  timestamps: true
-}), 'oauth_clients')
+const UserModel = require('./user');
+let TokenModel = require('./token')
 
 //////////////////////////////////////////////////////////////////////////////////////
 // OAuth2 express-oauth-server - overloads token generation, persistence, validation
@@ -52,6 +19,7 @@ let OAuthClientModel = oauthDb.model('OAuthClient', new oauthDb.Schema({
  * @param {*} user
  */
 const generateKey = (client, user) => {
+  debug('ENTER generateKey')
   // set arguments
   const data = {
     iat: new Date().getTime(),
@@ -78,8 +46,9 @@ const generateKey = (client, user) => {
  * @param {*} user
  */
 module.exports.generateAccessToken = async (client, user) => {
+  debug('ENTER generateAccessToken()')
   // first - invalidate/delete previous access/refresh token.
-  let result = await OAuthAccessTokenModel.deleteOne({
+  let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
     user: user._id,
     client: client._id
   })
@@ -88,7 +57,8 @@ module.exports.generateAccessToken = async (client, user) => {
 }
 
 module.exports.getAccessToken = async (accessToken) => {
-  let _accessToken = await OAuthAccessTokenModel.findOne({ accessToken: accessToken })
+  debug('ENTER getAccessToken()')
+  let _accessToken = await TokenModel.OAuthAccessTokenModel.findOne({ accessToken: accessToken })
     .populate('user')
     .populate('client')
 
@@ -105,27 +75,30 @@ module.exports.getAccessToken = async (accessToken) => {
 }
 
 module.exports.getRefreshToken = (refreshToken) => {
-  return OAuthAccessTokenModel.findOne({ refreshToken: refreshToken })
+  debug("Enter oauth::getRefreshToken()")
+  return TokenModel.OAuthAccessTokenModel.findOne({ refreshToken: refreshToken })
     .populate('user')
     .populate('client')
 }
 
 module.exports.getAuthorizationCode = (code) => {
-  return OAuthCodeModel.findOne({ authorizationCode: code })
+  debug("Enter oauth::getAuthorizationCode()")
+  return TokenModel.OAuthCodeModel.findOne({ authorizationCode: code })
     .populate('user')
     .populate('client')
 }
 
 module.exports.getClient = (clientId, clientSecret) => {
+  debug("Enter oauth::getClient()")
   let params = { clientId: clientId }
   if (clientSecret) {
     params.clientSecret = clientSecret
   }
-  return OAuthClientModel.findOne(params)
+  return TokenModel.OAuthClientModel.findOne(params)
 }
 
 module.exports.getUser = async (email, password) => {
-  let UserModel = mongoose.model('User')
+  debug("Enter oauth::getUser()")
   let user = await UserModel.findOne({ email: email })
   if (user.validatePassword(password)) {
     return user
@@ -135,15 +108,16 @@ module.exports.getUser = async (email, password) => {
 
 module.exports.getUserFromClient = null
 
-module.exports.saveToken = async (token, client, user) => {
-  let accessToken = (await OAuthAccessTokenModel.create({
+module.exports.saveToken = async (new_token, client, user) => {
+  debug("Enter oauth::saveToken()")
+  let accessToken = (await TokenModel.OAuthAccessTokenModel.create({
     user: user.id || null,
     client: client.id,
-    accessToken: token.accessToken,
-    accessTokenExpiresAt: token.accessTokenExpiresAt,
-    refreshToken: token.refreshToken,
-    refreshTokenExpiresAt: token.refreshTokenExpiresAt,
-    scope: token.scope,
+    accessToken: new_token.accessToken,
+    accessTokenExpiresAt: new_token.accessTokenExpiresAt,
+    refreshToken: new_token.refreshToken,
+    refreshTokenExpiresAt: new_token.refreshTokenExpiresAt,
+    scope: new_token.scope,
   })).toObject()
 
   if (!accessToken.user) {
@@ -154,7 +128,8 @@ module.exports.saveToken = async (token, client, user) => {
 }
 
 module.exports.saveAuthorizationCode = (code, client, user) => {
-  let authCode = new OAuthCodeModel({
+  debug("Enter oauth::saveAuthorizationCode()")
+  let authCode = new TokenModel.OAuthCodeModel({
     user: user.id,
     client: client.id,
     authorizationCode: code.authorizationCode,
@@ -165,14 +140,16 @@ module.exports.saveAuthorizationCode = (code, client, user) => {
 }
 
 module.exports.revokeToken = async (accessToken) => {
-  let result = await OAuthAccessTokenModel.deleteOne({
+  debug("Enter oauth::revokeToken()")
+  let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
     refreshToken: accessToken.refreshToken
   })
   return result.deletedCount > 0
 }
 
 module.exports.revokeAuthorizationCode = async (code) => {
-  let result = await OAuthCodeModel.deleteOne({
+  debug("Enter oauth::revokeAuthorizationCode()")
+  let result = await TokenModel.OAuthCodeModel.deleteOne({
     authorizationCode: code.authorizationCode
   })
   return result.deletedCount > 0

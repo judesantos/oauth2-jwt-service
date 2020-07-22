@@ -1,10 +1,9 @@
-const mongoose = require('mongoose')
 const crypto = require('crypto')
 
 const DbContext = require('../db/context')
 const env = require('../env')
 
-const oauthDb = DbContext.useDb(env.mongoDb.oauth.name);
+const oauthDb = DbContext.useDb(env.mongoDb.oauth.name)
 
 const UserSchema = new oauthDb.Schema({
   firstName: { type: String },
@@ -30,5 +29,4 @@ UserSchema.methods.setPassword = function (password) {
     .toString('hex')
 }
 
-
-oauthDb.model('User', UserSchema, 'users')
+module.exports = oauthDb.model('User', UserSchema, 'users')

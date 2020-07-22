@@ -1,8 +1,10 @@
+const debug = require('debug')('yourtechy-oauth2:oauth')
 const router = require('express').Router()
 const OAuthServer = require('express-oauth-server')
 const OAuthModel = require('../models/oauth')
 
 const env = require('../env')
+const { NotExtended } = require('http-errors')
 
 /////////////////////////////////////////////////////////////////////
 // Server - Supports password, refresh token grant
@@ -14,15 +16,13 @@ const env = require('../env')
 //      'password'
 //    ]
 /////////////////////////////////////////////////////////////////////
-
-let oauth = new OAuthServer({
+const oauth = new OAuthServer({
   model: OAuthModel,
   grants: ['password', 'refresh_token'],
   accessTokenLifetime: env.jwt.access_token_expires,
   refreshTokenLifetime: env.jwt.refresh_token_expires,
   debug: !env.isProduction
 })
-
 /**
  * password authentication grant
  *
@@ -35,7 +35,6 @@ let oauth = new OAuthServer({
  *    -H "Content-Type: application/x-www-form-urlencoded"
  */
 router.post('/oauth/access_token', oauth.token())
-
 /**
  * refresh token
  *

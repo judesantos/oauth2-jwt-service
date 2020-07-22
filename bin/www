@@ -3,16 +3,19 @@
 /**
  * Module dependencies.
  */
+require('dotenv').config()
 
-var app = require('../app');
-var debug = require('debug')('yourtechy-oauth2:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('yourtechy-oauth2:server');
+const http = require('http');
+
+const env = require('../env');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(env.serverPort);
 app.set('port', port);
 
 /**
@@ -65,11 +68,11 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      debug(bind + ' requires elevated privileges. Exiting...');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      debug(bind + ' is already in use. Exiting...');
       process.exit(1);
       break;
     default:
@@ -86,5 +89,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  debug('Server started! Listening on ' + bind);
 }

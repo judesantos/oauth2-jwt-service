@@ -1,5 +1,7 @@
+const debug = require('debug')('yourtechy-oauth2:dbcontext')
 const connector = require('./connector')
 const env = require('../env')
+const { resolve } = require('path')
 
 let dbConnections = {}
 
@@ -15,11 +17,11 @@ const DbContext = {
     ).then((cnx) => {
       // add db to our local cache
       dbConnections[name] = cnx
-      console.log(name + ' connection successful!')
+      debug(name + ' connection successful!')
       return true
     }).catch(err => {
-      console.log(name + ' connection attempt failed: ')
-      console.error(err)
+      debug(name + ' connection attempt failed: ')
+      debug(err)
       return false
     })
   },

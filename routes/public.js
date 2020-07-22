@@ -6,7 +6,6 @@ const { body, validationResult } = require('express-validator')
 const OAuthModel = require('../models/oauth')
 
 const env = require('../env')
-const { ContextBuilder } = require('express-validator/src/context-builder')
 
 const context = DbContext.useDb(env.mongoDb.oauth.name)
 
