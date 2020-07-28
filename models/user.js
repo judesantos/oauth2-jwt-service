@@ -6,8 +6,7 @@ const env = require('../env')
 const oauthDb = DbContext.useDb(env.mongoDb.oauth.name)
 
 const UserSchema = new oauthDb.Schema({
-  firstName: { type: String },
-  lastName: { type: String },
+  fullName: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
   role: { type: String },

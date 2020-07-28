@@ -40,8 +40,7 @@ router.post('/sign-in', async (req, res, next) => {
       if (user.validatePassword(req.body.password)) {
         req.session.user = {
           _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          fullName: user.fullName,
           email: user.email,
           role: user.role,
           isAdmin: user.role === 'admin' ? true : false
@@ -125,8 +124,7 @@ router.get('/register', (req, res, next) => {
 
 router.post('/register', [
   // validate
-  body('firstName', 'First name is required').notEmpty(),
-  body('lastName', 'Last name is required').notEmpty(),
+  body('fullName', 'Full Name is required').notEmpty(),
   body('email').notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .custom(async (email) => {
@@ -165,8 +163,7 @@ router.post('/register', [
 
   // Create User
   let _user = new UserModel({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
+    fullName: req.body.fullName,
     email: req.body.email,
     role: req.body.role,
     verificationCode: crypto.randomBytes(16).toString('hex'),

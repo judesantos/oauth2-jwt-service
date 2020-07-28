@@ -9,31 +9,17 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <label for="firstName">
-              First Name
+            <label for="fullName">
+              Full Name
               <span class="text-danger">*</span>
             </label>
-            <input name="firstName"
-              id="firstName"
+            <input name="fullName"
+              id="fullName"
               type="text"
-              class="form-control {{#if firstName.error }} error-element {{/if}}"
-              value="{{ firstName.value }}">
-              {{#if firstName.error }}
-                <p class="error-msg">{{{ firstName.msg }}}</p>
-              {{/if}}
-          </div>
-          <div class="form-group">
-            <label for="lastName">
-              Last Name
-              <span class="text-danger">*</span>
-            </label>
-            <input name="lastName"
-              id="lastName"
-              type="text"
-              class="form-control {{#if lastName.error }} error-element {{/if}}"
-              value="{{ lastName.value }}">
-              {{#if lastName.error }}
-                <p class="error-msg">{{{ lastName.msg }}}</p>
+              class="form-control {{#if fullName.error }} error-element {{/if}}"
+              value="{{ fullName.value }}">
+              {{#if fullName.error }}
+                <p class="error-msg">{{{ fullName.msg }}}</p>
               {{/if}}
           </div>
           <div class="form-group">
