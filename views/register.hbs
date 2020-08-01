@@ -74,10 +74,12 @@
               class="form-control {{#if role.error }} error-element {{/if}}"
               value="{{ role.value }}">
               <option value="">Select Role</option>
-              <option value="technician">Technician</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              <option value="User">Technician</option>
+              <option value="Technician">Technician</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+              <option value="SuperAdmin">Super Admin</option>
             </select>
             {{#if role.error }}
               <p class="error-msg">{{{ role.msg }}}</p>

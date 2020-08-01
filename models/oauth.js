@@ -28,6 +28,7 @@ const generateKey = (client, user) => {
     userId: user._id,
     email: user.email,
     client: client.clientId,
+    role: user.role,
   };
   const options = {
     issuer: env.jwt.issuer,
