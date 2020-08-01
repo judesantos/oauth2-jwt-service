@@ -1,10 +1,10 @@
-const debug = require('debug')('yourtechy-oauth2:oauth')
-const router = require('express').Router()
-const OAuthServer = require('express-oauth-server')
-const OAuthModel = require('../models/oauth')
+const debug = require("debug")("yourtechy-oauth2:oauth");
 
-const env = require('../env')
-const { NotExtended } = require('http-errors')
+const router = require("express").Router();
+const OAuthServer = require("express-oauth-server");
+const OAuthModel = require("../models/oauth");
+
+const env = require("../env");
 
 /////////////////////////////////////////////////////////////////////
 // Server - Supports password, refresh token grant
@@ -18,13 +18,14 @@ const { NotExtended } = require('http-errors')
 /////////////////////////////////////////////////////////////////////
 const oauth = new OAuthServer({
   model: OAuthModel,
-  grants: ['password', 'refresh_token'],
+  grants: ["password", "refresh_token"],
   accessTokenLifetime: env.jwt.access_token_expires,
   refreshTokenLifetime: env.jwt.refresh_token_expires,
-  debug: !env.isProduction
-})
+  debug: !env.isProduction,
+});
+
 /**
- * password authentication grant
+ * password authentication granter
  *
  * Ex.:
  *   curl http://localhost:3000/oauth/access_token \
@@ -34,7 +35,8 @@ const oauth = new OAuthServer({
  *    -H "Authorization: Basic base64'd-client:secret" \
  *    -H "Content-Type: application/x-www-form-urlencoded"
  */
-router.post('/oauth/access_token', oauth.token())
+router.post("/oauth/access_token", oauth.token());
+
 /**
  * refresh token
  *
@@ -45,6 +47,6 @@ router.post('/oauth/access_token', oauth.token())
  *    -H "Authorization: Basic YXBwbGljYXRpb246c2VjcmV0" \
  *    -H "Content-Type: application/x-www-form-urlencoded"
  */
-router.post('/oauth/refresh_token', oauth.token())
+router.post("/oauth/refresh_token", oauth.token());
 
-module.exports = router
+module.exports = router;

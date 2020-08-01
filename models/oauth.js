@@ -26,6 +26,7 @@ const generateKey = (client, user) => {
   const data = {
     created: Math.floor(Date.now() / 1000),
     userId: user._id,
+    fullName: user.fullName,
     email: user.email,
     client: client.clientId,
     role: user.role,
