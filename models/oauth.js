@@ -134,7 +134,7 @@ module.exports.saveToken = async (new_token, client, user) => {
     const now = (new Date()).getTime();
 
     if (expiresAt > now) {
-      return token;
+      return getCustomTokenProperties(token);
     }
   }
 
@@ -144,7 +144,7 @@ module.exports.saveToken = async (new_token, client, user) => {
     client: client._id,
   });
 
-  let accessToken = (
+  token = (
     await TokenModel.OAuthAccessTokenModel.create({
       user: user.id || null,
       client: client.id,
@@ -156,12 +156,19 @@ module.exports.saveToken = async (new_token, client, user) => {
     })
   ).toObject();
 
-  if (!accessToken.user) {
-    accessToken.user = {};
-  }
-
-  return accessToken;
+  return getCustomTokenProperties(token);
 };
+
+const getCustomTokenProperties = (token) => {
+  // set refresh expriation time
+  token.refresh_token_expires_at = (new Date(token.refreshTokenExpiresAt)).getTime(); // ms time to expire
+
+  delete token._id;
+  delete token.createdAt;
+  delete token.__v;
+
+  return token;
+}
 
 module.exports.saveAuthorizationCode = (code, client, user) => {
   logger.debug("Enter oauth::saveAuthorizationCode()");

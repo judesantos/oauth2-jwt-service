@@ -21,6 +21,7 @@ const oauth = new OAuthServer({
   grants: ["password", "refresh_token"],
   accessTokenLifetime: env.jwt.access_token_expires,
   refreshTokenLifetime: env.jwt.refresh_token_expires,
+  allowExtendedTokenAttributes: true,
   debug: !env.isProduction,
 });
 
