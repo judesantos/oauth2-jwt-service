@@ -1,15 +1,15 @@
-#!/usr/bin/env node
+require("./load-env"); // Must be the first import
+const env = require("./.env");
+
+//
+const app = require('./app');
 
 /**
  * Module dependencies.
  */
-require('dotenv').config()
 
-const app = require('../app');
-const debug = require('debug')('yourtechy-oauth2:server');
+const logger = require('./lib/logger');
 const http = require('http');
-
-const env = require('../env');
 
 /**
  * Get port from environment and store in Express.
@@ -89,5 +89,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Server started! Listening on ' + bind);
+  logger.info('Server started! Listening on ' + bind);
 }

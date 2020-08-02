@@ -1,5 +1,5 @@
 const DbContext = require('../db/context')
-const env = require('../env')
+const env = require('../.env')
 
 //////////////////////////////////////////////////////////////////////////////////////
 // token schema models

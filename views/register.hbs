@@ -1,4 +1,4 @@
-<br/>
+<br />
 <div class="row">
   <div class="col-md-6 offset-md-3">
     <h3>Register</h3>
@@ -13,65 +13,40 @@
               Full Name
               <span class="text-danger">*</span>
             </label>
-            <input name="fullName"
-              id="fullName"
-              type="text"
-              class="form-control {{#if fullName.error }} error-element {{/if}}"
-              value="{{ fullName.value }}">
-              {{#if fullName.error }}
-                <p class="error-msg">{{{ fullName.msg }}}</p>
-              {{/if}}
+            <input name="fullName" id="fullName" type="text"
+              class="form-control {{#if fullName.error }} error-element {{/if}}" value="{{ fullName.value }}">
+            {{#if fullName.error }}
+            <p class="error-msg">{{{ fullName.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="email">
               Email
               <span class="text-danger">*</span>
             </label>
-            <input name="email"
-              id="email"
-              type="text"
-              class="form-control {{#if email.error }} error-element {{/if}}"
+            <input name="email" id="email" type="text" class="form-control {{#if email.error }} error-element {{/if}}"
               value="{{ email.value }}">
-              {{#if email.error }}
-                <p class="error-msg">{{{ email.msg }}}</p>
-              {{/if}}
+            {{#if email.error }}
+            <p class="error-msg">{{{ email.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="password">
               Password
               <span class="text-danger">*</span>
             </label>
-            <input name="password"
-              id="password"
-              type="password"
-              class="form-control {{#if password.error }} error-element {{/if}}"
-              value="{{ passwoed.value }}">
-              {{#if password.error }}
-                <p class="error-msg">{{{ password.msg }}}</p>
-              {{/if}}
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">
-              Confirm Password
-              <span class="text-danger">*</span>
-            </label>
-            <input name="confirmPassword"
-              id="confirmPassword"
-              type="password"
-              class="form-control {{#if confirmPassword.error }} error-element {{/if}}"
-              value="{{ confirmPassword.value }}">
-              {{#if confirmPassword.error }}
-                <p class="error-msg">{{{ confirmPassword.msg }}}</p>
-              {{/if}}
+            <input name="password" id="password" type="password"
+              class="form-control {{#if password.error }} error-element {{/if}}" value="{{ passwoed.value }}">
+            {{#if password.error }}
+            <p class="error-msg">{{{ password.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="role">
               User Role
               <span class="text-danger">*</span>
             </label>
-            <select name="role"
-              id="role"
-              class="form-control {{#if role.error }} error-element {{/if}}"
+            <select name="role" id="role" class="form-control {{#if role.error }} error-element {{/if}}"
               value="{{ role.value }}">
               <option value="">Select Role</option>
               <option value="User">Technician</option>
@@ -82,11 +57,13 @@
               <option value="SuperAdmin">Super Admin</option>
             </select>
             {{#if role.error }}
-              <p class="error-msg">{{{ role.msg }}}</p>
+            <p class="error-msg">{{{ role.msg }}}</p>
             {{/if}}
           </div>
         </div>
       </div>
+      {{#if user }}
+      {{#ifstreq user.role "SuperAdmin"}}
       <div class="card mb-3">
         <div class="card-header">
           OAuth Client
@@ -97,59 +74,49 @@
               Client ID
               <span class="text-danger">*</span>
             </label>
-            <input name="clientId"
-              id="clientId"
-              type="text"
-              class="form-control {{#if clientId.error }} error-element {{/if}}"
-              value="{{ clientId.value }}">
-              {{#if clientId.error }}
-                <p class="error-msg">{{{ clientId.msg }}}</p>
-              {{/if}}
+            <input name="clientId" id="clientId" type="text"
+              class="form-control {{#if clientId.error }} error-element {{/if}}" value="{{ clientId.value }}">
+            {{#if clientId.error }}
+            <p class="error-msg">{{{ clientId.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="Client Secret">
               Client Secret
               <span class="text-danger">*</span>
             </label>
-            <input name="clientSecret"
-              id="clientSecret"
-              type="text"
-              class="form-control {{#if clientSecret.error }} error-element {{/if}}"
-              value="{{ clientSecret.value }}">
-              {{#if clientSecret.error }}
-                <p class="error-msg">{{{ clientSecret.msg }}}</p>
-              {{/if}}
+            <input name="clientSecret" id="clientSecret" type="text"
+              class="form-control {{#if clientSecret.error }} error-element {{/if}}" value="{{ clientSecret.value }}">
+            {{#if clientSecret.error }}
+            <p class="error-msg">{{{ clientSecret.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="companyName">
               Company Name
               <span class="text-danger">*</span>
             </label>
-            <input name="companyName"
-              id="companyName"
-              type="text"
-              class="form-control {{#if companyName.error }} error-element {{/if}}"
-              value="{{ companyName.value }}">
-              {{#if companyName.error }}
-                <p class="error-msg">{{{ companyName.msg }}}</p>
-              {{/if}}
+            <input name="companyName" id="companyName" type="text"
+              class="form-control {{#if companyName.error }} error-element {{/if}}" value="{{ companyName.value }}">
+            {{#if companyName.error }}
+            <p class="error-msg">{{{ companyName.msg }}}</p>
+            {{/if}}
           </div>
           <div class="form-group">
             <label for="hostName">
               Host/Domain Name
               <span class="text-danger">*</span>
             </label>
-            <input name="hostName"
-              id="hostName"
-              type="text"
-              class="form-control {{#if hostName.error }} error-element {{/if}}"
-              value="{{ hostName.value }}">
-              {{#if hostName.error }}
-                <p class="error-msg">{{{ hostName.msg }}}</p>
-              {{/if}}
+            <input name="hostName" id="hostName" type="text"
+              class="form-control {{#if hostName.error }} error-element {{/if}}" value="{{ hostName.value }}">
+            {{#if hostName.error }}
+            <p class="error-msg">{{{ hostName.msg }}}</p>
+            {{/if}}
           </div>
         </div>
       </div>
+      {{/ifstreq}}
+      {{/if}}
       <div class="button-group">
         <button class="btn btn-primary">
           Create Account

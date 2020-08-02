@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator')
 
 const OAuthModel = require('../models/oauth')
 
-const env = require('../env')
+const env = require('../.env')
 
 const context = DbContext.useDb(env.mongoDb.oauth.name)
 
@@ -137,13 +137,6 @@ router.post('/register', [
     ),
   body('password').trim().notEmpty().withMessage('Password is required').escape()
     .isLength({ min: 8 }).withMessage('Password must be 8 chars or more'),
-  body('confirmPassword').notEmpty().withMessage('Confirm password required')
-    .custom(async (pw, { req }) => {
-      if (req.body.password !== pw) {
-        return Promise.reject('Passwords does not match')
-      }
-    }
-    ),
   body('role', 'User role is required').notEmpty(),
   body('clientId', 'Client id is required').notEmpty(),
   body('clientSecret', 'Client secret is required').notEmpty(),
@@ -161,27 +154,7 @@ router.post('/register', [
   let UserModel = context.model('User')
   let OAuthClientModel = context.model('OAuthClient')
 
-  // Create User
-  let _user = new UserModel({
-    fullName: req.body.fullName,
-    email: req.body.email,
-    role: req.body.role,
-    verificationCode: crypto.randomBytes(16).toString('hex'),
-    active: true
-  })
-  _user.setPassword(req.body.password)
-  let user = null
-  try {
-    user = await _user.save()
-  } catch (error) {
-    return res.send(error.errmsg, 422)
-  }
-
-  if (!user) {
-    return res.send('Error creating user', 422)
-  }
-
-  // Create OAuth Client
+  // Create OAuth Client if none exists
   let _client = await OAuthModel.getClient(
     req.body.clientId,
     req.body.clientSecret
@@ -200,8 +173,31 @@ router.post('/register', [
         'password'
       ]
     })
+
     _client.save()
   }
+
+  // Create User
+  let _user = new UserModel({
+    fullName: req.body.fullName,
+    email: req.body.email,
+    role: req.body.role,
+    verificationCode: crypto.randomBytes(16).toString('hex'),
+    active: true,
+    clientId: _client._id
+  })
+  _user.setPassword(req.body.password)
+  let user = null
+  try {
+    user = await _user.save()
+  } catch (error) {
+    return res.send(error.errmsg, 422)
+  }
+
+  if (!user) {
+    return res.send('Error creating user', 422)
+  }
+
 
   req.flash('message', 'Registration successful!')
 

@@ -4,7 +4,7 @@ const router = require("express").Router();
 const OAuthServer = require("express-oauth-server");
 const OAuthModel = require("../models/oauth");
 
-const env = require("../env");
+const env = require("../.env");
 
 /////////////////////////////////////////////////////////////////////
 // Server - Supports password, refresh token grant

@@ -11,3 +11,7 @@ hbs.registerHelper("isnt", (a, b, opts) => {
     return opts.inverse(this)
   }
 })
+
+hbs.registerHelper("ifstreq", (str1, str2, opts) => {
+  return str1 == str2 ? opts.fn(this) : opts.inverse(this);
+});

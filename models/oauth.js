@@ -1,12 +1,12 @@
-const debug = require("debug")("yourtechy-oauth:oauth");
-
 const JWT = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
-const env = require("../env");
+const env = require("../.env");
+const logger = require('../lib/logger');
 
 const UserModel = require("./user");
 let TokenModel = require("./token");
+const { time } = require("console");
 
 //////////////////////////////////////////////////////////////////////////////////////
 // OAuth2 express-oauth-server - overloads token generation, persistence, validation
@@ -21,7 +21,7 @@ let secret = null;
  * @param {*} user
  */
 const generateKey = (client, user) => {
-  debug("ENTER generateKey");
+  logger.debug("ENTER generateKey");
   // set arguments
   const data = {
     created: Math.floor(Date.now() / 1000),
@@ -55,18 +55,13 @@ const generateKey = (client, user) => {
  * @param {*} user
  */
 module.exports.generateAccessToken = async (client, user) => {
-  debug("ENTER generateAccessToken()");
-  // first - invalidate/delete previous access/refresh token.
-  let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
-    user: user._id,
-    client: client._id,
-  });
+  logger.debug("ENTER generateAccessToken()");
   // now generate a new one
   return generateKey(client, user);
 };
 
 module.exports.getAccessToken = async (accessToken) => {
-  debug("ENTER getAccessToken()");
+  logger.debug("ENTER getAccessToken()");
   let _accessToken = await TokenModel.OAuthAccessTokenModel.findOne({
     accessToken: accessToken,
   })
@@ -86,7 +81,7 @@ module.exports.getAccessToken = async (accessToken) => {
 };
 
 module.exports.getRefreshToken = (refreshToken) => {
-  debug("Enter oauth::getRefreshToken()");
+  logger.debug("Enter oauth::getRefreshToken()");
   return TokenModel.OAuthAccessTokenModel.findOne({
     refreshToken: refreshToken,
   })
@@ -95,14 +90,14 @@ module.exports.getRefreshToken = (refreshToken) => {
 };
 
 module.exports.getAuthorizationCode = (code) => {
-  debug("Enter oauth::getAuthorizationCode()");
+  logger.debug("Enter oauth::getAuthorizationCode()");
   return TokenModel.OAuthCodeModel.findOne({ authorizationCode: code })
     .populate("user")
     .populate("client");
 };
 
 module.exports.getClient = (clientId, clientSecret) => {
-  debug("Enter oauth::getClient()");
+  logger.debug("Enter oauth::getClient()");
   let params = { clientId: clientId };
   if (clientSecret) {
     params.clientSecret = clientSecret;
@@ -111,9 +106,9 @@ module.exports.getClient = (clientId, clientSecret) => {
 };
 
 module.exports.getUser = async (email, password) => {
-  debug("Enter oauth::getUser()");
+  logger.debug("Enter oauth::getUser()");
   let user = await UserModel.findOne({ email: email });
-  if (user.validatePassword(password)) {
+  if (user && user.validatePassword(password)) {
     return user;
   }
   return false;
@@ -122,7 +117,33 @@ module.exports.getUser = async (email, password) => {
 module.exports.getUserFromClient = null;
 
 module.exports.saveToken = async (new_token, client, user) => {
-  debug("Enter oauth::saveToken()");
+  logger.debug("Enter oauth::saveToken()");
+
+  // check if a previous token is still valid - unexpired, if so, reuse token.
+
+  let token = await TokenModel.OAuthAccessTokenModel.findOne({
+    user: user._id,
+    client: client._id,
+  })
+    .populate("user")
+    .populate("client");
+
+  if (token) {
+    token = token.toObject();
+    const expiresAt = (new Date(token.accessTokenExpiresAt)).getTime();
+    const now = (new Date()).getTime();
+
+    if (expiresAt > now) {
+      return token;
+    }
+  }
+
+  // delete expired token
+  let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
+    user: user._id,
+    client: client._id,
+  });
+
   let accessToken = (
     await TokenModel.OAuthAccessTokenModel.create({
       user: user.id || null,
@@ -143,7 +164,7 @@ module.exports.saveToken = async (new_token, client, user) => {
 };
 
 module.exports.saveAuthorizationCode = (code, client, user) => {
-  debug("Enter oauth::saveAuthorizationCode()");
+  logger.debug("Enter oauth::saveAuthorizationCode()");
   let authCode = new TokenModel.OAuthCodeModel({
     user: user.id,
     client: client.id,
@@ -155,7 +176,7 @@ module.exports.saveAuthorizationCode = (code, client, user) => {
 };
 
 module.exports.revokeToken = async (accessToken) => {
-  debug("Enter oauth::revokeToken()");
+  logger.debug("Enter oauth::revokeToken()");
   let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
     refreshToken: accessToken.refreshToken,
   });
@@ -163,7 +184,7 @@ module.exports.revokeToken = async (accessToken) => {
 };
 
 module.exports.revokeAuthorizationCode = async (code) => {
-  debug("Enter oauth::revokeAuthorizationCode()");
+  logger.debug("Enter oauth::revokeAuthorizationCode()");
   let result = await TokenModel.OAuthCodeModel.deleteOne({
     authorizationCode: code.authorizationCode,
   });

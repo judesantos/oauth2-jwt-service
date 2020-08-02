@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
 const DbContext = require("../db/context");
-const env = require("../env");
+const env = require("../.env");
 const debug = require("debug")("yourtechy-oauth2:user");
 
 const oauthDb = DbContext.useDb(env.mongoDb.oauth.name);
@@ -16,6 +16,7 @@ const UserSchema = new oauthDb.Schema(
     verificationCode: { type: String },
     verifiedAt: { type: Date },
     active: { type: Boolean },
+    clientId: { type: String },
   },
   {
     timestamps: true,
@@ -23,7 +24,7 @@ const UserSchema = new oauthDb.Schema(
 );
 
 UserSchema.methods.validatePassword = function (password) {
-  return bcrypt.compare(password, this.password);
+  return bcrypt.compareSync(password, this.password);
 };
 
 UserSchema.methods.setPassword = function (password) {
