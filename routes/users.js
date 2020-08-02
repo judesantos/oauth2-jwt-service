@@ -1,22 +1,22 @@
 const express = require("express");
 
-const apiIsAuthorized = require("../controllers/Authorize");
-const apiIsAuthenticated = require("../controllers/Authenticate");
-const { find, findAll } = require("../controllers/Users");
+const authorize = require("../controllers/authorize");
+const authenticate = require("../controllers/authenticate");
+const { find, findAll } = require("../controllers/users");
 
 const router = express.Router();
 
 router.get("/all", [
-  apiIsAuthenticated,
-  apiIsAuthorized({
+  authenticate.apiIsAuthenticated,
+  authorize.apiIsAuthorized({
     hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
   }),
   findAll,
 ]);
 
 router.get("/", [
-  apiIsAuthenticated,
-  apiIsAuthorized({
+  authenticate.apiIsAuthenticated,
+  authorize.apiIsAuthorized({
     hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
   }),
   find,

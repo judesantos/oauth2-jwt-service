@@ -9,10 +9,8 @@ const {
   loginRequiredError,
 } = require("../lib/constants");
 
-const JwtService = require("../lib/JwtService");
-const logger = require("../lib/Logger");
-
-const jwtService = new JwtService();
+const JwtService = require("../lib/jwtservice");
+const logger = require("../lib/logger");
 
 module.exports.isAuthenticated = async (req, res) => {
   logger.debug("Entering middleware::isAuthenticated()");
@@ -42,7 +40,7 @@ module.exports.isAuthenticated = async (req, res) => {
     };
   }
 
-  const jwtRet = await jwtService.authenticate(authorization);
+  const jwtRet = await JwtService.authenticate(authorization);
 
   if (jwtRet.status == JwtService.TOKEN_EXPIRED_ERROR) {
     return {
@@ -70,13 +68,13 @@ module.exports.isAuthenticated = async (req, res) => {
 module.exports.apiIsAuthenticated = async (req, res, next) => {
   logger.debug("Enter middleware::apiIsAuthenticated()");
 
-  const ret = await isAuthenticated(req, res);
+  const ret = await this.isAuthenticated(req, res);
 
   if (OK !== ret.status) {
     return res.status(ret.status).json(ret.message);
   }
 
-  res.locals.user = ret.data;
+  res.locals.user = ret.data.data;
 
   logger.debug("Exit middleware::apiIsAuthenticated()");
   next();

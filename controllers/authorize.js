@@ -1,4 +1,4 @@
-const { FORBIDDEN, OK } = require("http-status-codes")
+const { FORBIDDEN, OK } = require("http-status-codes");
 
 const {
   unauthorizedError,
@@ -6,15 +6,19 @@ const {
   authorizationError,
 } = require("../lib/constants");
 
-const logger = require("../lib/Logger");
+const logger = require("../lib/logger");
 
 /**
  *
  * @param opts
  */
-modules.export.isAuthorized = (opts = {
-  hasRole: ["SuperAdmin" | "Admin" | "Manager" | "Supervisor" | "Technician" | "User"]
-}) => {
+module.exports.isAuthorized = (
+  opts = {
+    hasRole: [
+      "SuperAdmin" | "Admin" | "Manager" | "Supervisor" | "Technician" | "User",
+    ],
+  }
+) => {
   return (req, res, next) => {
     logger.debug("Entering middleware::isAuthorized()");
     const redirectLogin = () => res.redirect("/");
@@ -50,7 +54,7 @@ modules.export.isAuthorized = (opts = {
       };
     }
 
-    return res.render(view, error);
+    res.render(view, error);
   };
 };
 
@@ -58,9 +62,13 @@ modules.export.isAuthorized = (opts = {
  *
  * @param opts
  */
-export const apiIsAuthorized = (opts = {
-  hasRole: ["SuperAdmin" | "Admin" | "Manager" | "Supervisor" | "Technician" | "User"]
-}) => {
+module.exports.apiIsAuthorized = (
+  opts = {
+    hasRole: [
+      "SuperAdmin" | "Admin" | "Manager" | "Supervisor" | "Technician" | "User",
+    ],
+  }
+) => {
   return (req, res, next) => {
     logger.debug("Enter middleware::apiIsAuthorized()");
     const redirectLogin = (msg) =>
@@ -77,6 +85,6 @@ export const apiIsAuthorized = (opts = {
     }
 
     logger.debug("Exit middleware::apiIsAuthorized() - authorization error");
-    return redirectLogin(authorizationError);
+    redirectLogin(authorizationError);
   };
 };

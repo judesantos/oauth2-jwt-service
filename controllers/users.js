@@ -1,8 +1,13 @@
-const { BAD_REQUEST, CREATED, OK, NOT_ACCEPTABLE } = require("http-status-codes");
+const {
+  BAD_REQUEST,
+  CREATED,
+  OK,
+  NOT_ACCEPTABLE,
+} = require("http-status-codes");
 
 const { paramMissingError, invalidArgumentError } = require("../lib/constants");
-const UserModel = require("../models/User");
-const logger = require("../lib/Logger");
+const UserModel = require("../models/user");
+const logger = require("../lib/logger");
 
 module.exports.findOne = async (req, res) => {
   logger.debug("Enter User.findOne()");
@@ -57,11 +62,7 @@ module.exports.find = async (req, res) => {
   const email = req.query.email;
   const fullName = req.query.fullName;
   const id = req.query.id;
-  const all = req.query.all
-    ? req.query.all === "true"
-      ? true
-      : false
-    : false;
+  const all = req.query.all ? (req.query.all === "true" ? true : false) : false;
 
   // args email, fullname are always wildcarded.
   if (id) params.push({ _id: id });

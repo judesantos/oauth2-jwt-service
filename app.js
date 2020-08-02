@@ -1,6 +1,6 @@
-const logger = require('./lib/logger')
+const logger = require("./lib/logger");
 const path = require("path");
-const fs = require('fs')
+const fs = require("fs");
 
 const cors = require("cors");
 const express = require("express");
@@ -17,7 +17,7 @@ const app = express();
 // load app environment
 
 const env = require("./.env");
-const DbContext = require("./db/context")
+const DbContext = require("./db/context");
 
 /**
  * App dependencies
@@ -29,17 +29,31 @@ const morgan = require("morgan");
 
 if (env.isProduction) {
   // log to file in production
-  app.use(morgan('common', {
-    skip: function (req, res) { return res.statusCode === 200 },
-    stream: fs.createWriteStream(path.join(__dirname, env.logging.commonLogPath), { flags: 'a' })
-  }))
-  app.use(morgan('errors', {
-    skip: function (req, res) { return res.statusCode > 200 },
-    stream: fs.createWriteStream(path.join(__dirname, env.logging.errorLogPath), { flags: 'a' })
-  }))
+  app.use(
+    morgan("common", {
+      skip: function (req, res) {
+        return res.statusCode === 200;
+      },
+      stream: fs.createWriteStream(
+        path.join(__dirname, env.logging.commonLogPath),
+        { flags: "a" }
+      ),
+    })
+  );
+  app.use(
+    morgan("errors", {
+      skip: function (req, res) {
+        return res.statusCode > 200;
+      },
+      stream: fs.createWriteStream(
+        path.join(__dirname, env.logging.errorLogPath),
+        { flags: "a" }
+      ),
+    })
+  );
 } else {
   // log to console in dev
-  app.use(morgan('dev'));
+  app.use(morgan("dev"));
 }
 
 // handlerbars view engine setup
@@ -104,7 +118,7 @@ DbContext.init().then((success) => {
   // system error handler
 
   app.use((err, req, res, next) => {
-    logger.debug('Error catch all...')
+    logger.debug("Error catch all...");
     // show errors on non-prod deployment
     res.locals.message = err.message;
     res.locals.error = !env.isProduction ? err : {};
