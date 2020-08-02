@@ -6,6 +6,12 @@ const env = require('../.env')
 router.use(require('./oauth'))
 router.use(require('./public'))
 
+const service = router();
+service.use(require('./users'));
+
+router.use('/api/v1', service);
+
+
 const oauth = new OAuthServer({
   model: OAuthModel,
   requireClientAuthentication: { password: true },

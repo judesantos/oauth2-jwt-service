@@ -1,9 +1,7 @@
-const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
 const DbContext = require("../db/context");
 const env = require("../.env");
-const debug = require("debug")("yourtechy-oauth2:user");
 
 const oauthDb = DbContext.useDb(env.mongoDb.oauth.name);
 

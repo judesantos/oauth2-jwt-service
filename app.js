@@ -83,7 +83,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 DbContext.init().then((success) => {
   if (!success) {
-    debug("Server initialization failed! Exeunt...");
+    logger.debug("Server initialization failed! Exeunt...");
     return;
   }
   require("./models/oauth");
