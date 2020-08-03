@@ -1,25 +1,38 @@
-const express = require("express")
+const express = require("express");
 
-const authorize = require("../controllers/authorize")
-const authenticate = require("../controllers/authenticate")
-const { find, findAll } = require("../controllers/users")
+const authorize = require("../controllers/authorize");
+const authenticate = require("../controllers/authenticate");
+const { find, update } = require("../controllers/users");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get("/all", [
-  authenticate.apiIsAuthenticated,
-  authorize.apiIsAuthorized({
-    hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
-  }),
-  findAll,
-])
-
+/**
+ * Find user
+ */
 router.get("/", [
   authenticate.apiIsAuthenticated,
   authorize.apiIsAuthorized({
     hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
   }),
   find,
-])
+]);
 
-module.exports = router
+/**
+ * Update user
+ */
+router.put("/", [
+  authenticate.apiIsAuthenticated,
+  authorize.apiIsAuthorized({
+    hasRole: [
+      "SuperAdmin",
+      "Admin",
+      "Manager",
+      "Supervisor",
+      "Technician",
+      "User",
+    ],
+  }),
+  update,
+]);
+
+module.exports = router;
