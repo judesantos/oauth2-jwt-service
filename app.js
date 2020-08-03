@@ -1,23 +1,23 @@
-const logger = require("./lib/logger");
-const path = require("path");
-const fs = require("fs");
+const logger = require("./lib/logger")
+const path = require("path")
+const fs = require("fs")
 
-const cors = require("cors");
-const express = require("express");
-const flash = require("connect-flash");
-const bodyParser = require("body-parser");
-const createError = require("http-errors");
-const session = require("express-session");
-const sassMiddleware = require("node-sass-middleware");
+const cors = require("cors")
+const express = require("express")
+const flash = require("connect-flash")
+const bodyParser = require("body-parser")
+const createError = require("http-errors")
+const session = require("express-session")
+const sassMiddleware = require("node-sass-middleware")
 
 // load app
 
-const app = express();
+const app = express()
 
 // load app environment
 
-const env = require("./.env");
-const DbContext = require("./db/context");
+const env = require("./.env")
+const DbContext = require("./db/context")
 
 /**
  * App dependencies
@@ -25,48 +25,48 @@ const DbContext = require("./db/context");
 
 // use morgan for http tracing
 
-const morgan = require("morgan");
+const morgan = require("morgan")
 
 if (env.isProduction) {
   // log to file in production
   app.use(
     morgan("common", {
       skip: function (req, res) {
-        return res.statusCode === 200;
+        return res.statusCode === 200
       },
       stream: fs.createWriteStream(
         path.join(__dirname, env.logging.commonLogPath),
         { flags: "a" }
       ),
     })
-  );
+  )
   app.use(
     morgan("errors", {
       skip: function (req, res) {
-        return res.statusCode > 200;
+        return res.statusCode > 200
       },
       stream: fs.createWriteStream(
         path.join(__dirname, env.logging.errorLogPath),
         { flags: "a" }
       ),
     })
-  );
+  )
 } else {
   // log to console in dev
-  app.use(morgan("dev"));
+  app.use(morgan("dev"))
 }
 
 // handlerbars view engine setup
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "hbs");
-require("./utils/hbs-helpers");
+app.set("views", path.join(__dirname, "views"))
+app.set("view engine", "hbs")
+require("./utils/hbs-helpers")
 
 // parse application/x-www-form-urlencoded
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 // session config
 
@@ -77,7 +77,7 @@ app.use(
     saveUninitialized: true,
     resave: false,
   })
-);
+)
 app.use(
   sassMiddleware({
     src: path.join(__dirname, "public"),
@@ -85,47 +85,47 @@ app.use(
     indentedSyntax: false, // true = .sass and false = .scss
     sourceMap: true,
   })
-);
-app.use(cors());
-app.use(flash());
-app.use(express.json());
+)
+app.use(cors())
+app.use(flash())
+app.use(express.json())
 //app.use(cookieParser())
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, "public")))
 
 // connect to DB, setup routes on success.
 
 DbContext.init().then((success) => {
   if (!success) {
-    logger.debug("Server initialization failed! Exeunt...");
-    return;
+    logger.debug("Server initialization failed! Exeunt...")
+    return
   }
-  require("./models/oauth");
+  require("./models/oauth")
 
   // setup routes
 
-  app.use(require("./routes"));
+  app.use(require("./routes"))
 
   // handle 404 error, send to error handler
 
   app.use(function (req, res, next) {
     if (false !== req.url.indexOf("access_token")) {
-      return res.status(400).send("Server error occurred");
+      return res.status(400).send("Server error occurred")
     }
-    next(createError(404));
-  });
+    next(createError(404))
+  })
 
   // system error handler
 
   app.use((err, req, res, next) => {
-    logger.debug("Error catch all...");
+    logger.debug("Error catch all...")
     // show errors on non-prod deployment
-    res.locals.message = err.message;
-    res.locals.error = !env.isProduction ? err : {};
+    res.locals.message = err.message
+    res.locals.error = !env.isProduction ? err : {}
     // show error page
-    res.status(err.status || 500);
-    res.render("error");
-  });
-});
+    res.status(err.status || 500)
+    res.render("error")
+  })
+})
 
-module.exports = app;
+module.exports = app

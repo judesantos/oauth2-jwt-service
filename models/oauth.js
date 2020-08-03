@@ -1,18 +1,18 @@
-const JWT = require("jsonwebtoken");
-const fs = require("fs");
-const path = require("path");
-const env = require("../.env");
-const logger = require('../lib/logger');
+const JWT = require("jsonwebtoken")
+const fs = require("fs")
+const path = require("path")
+const env = require("../.env")
+const logger = require('../lib/logger')
 
-const UserModel = require("./user");
-let TokenModel = require("./token");
-const { time } = require("console");
+const UserModel = require("./user")
+let TokenModel = require("./token")
+const { time } = require("console")
 
 //////////////////////////////////////////////////////////////////////////////////////
 // OAuth2 express-oauth-server - overloads token generation, persistence, validation
 //////////////////////////////////////////////////////////////////////////////////////
 
-let secret = null;
+let secret = null
 
 /**
  *  generateKey - jwt
@@ -21,32 +21,32 @@ let secret = null;
  * @param {*} user
  */
 const generateKey = (client, user) => {
-  logger.debug("ENTER generateKey");
+  logger.debug("ENTER generateKey")
   // set arguments
   const data = {
     created: Math.floor(Date.now() / 1000),
     userId: user._id,
     fullName: user.fullName,
     email: user.email,
-    client: client.clientId,
+    clientId: client._id,
     role: user.role,
-  };
+  }
   const options = {
     issuer: env.jwt.issuer,
     expiresIn: env.jwt.access_token_expires,
     algorithm: env.jwt.algorithm,
-  };
+  }
 
   if (!secret) {
     secret = fs.readFileSync(
       path.resolve(__dirname, "../.keys/private.key"),
       "utf8"
-    );
+    )
   }
 
   // generate jwt access token
-  return JWT.sign(data, secret, options);
-};
+  return JWT.sign(data, secret, options)
+}
 
 /**
  * generateAccessToken = jwt
@@ -55,69 +55,69 @@ const generateKey = (client, user) => {
  * @param {*} user
  */
 module.exports.generateAccessToken = async (client, user) => {
-  logger.debug("ENTER generateAccessToken()");
+  logger.debug("ENTER generateAccessToken()")
   // now generate a new one
-  return generateKey(client, user);
-};
+  return generateKey(client, user)
+}
 
 module.exports.getAccessToken = async (accessToken) => {
-  logger.debug("ENTER getAccessToken()");
+  logger.debug("ENTER getAccessToken()")
   let _accessToken = await TokenModel.OAuthAccessTokenModel.findOne({
     accessToken: accessToken,
   })
     .populate("user")
-    .populate("client");
+    .populate("client")
 
   if (!_accessToken) {
-    return false;
+    return false
   }
 
-  _accessToken = _accessToken.toObject();
+  _accessToken = _accessToken.toObject()
 
   if (!_accessToken.user) {
-    _accessToken.user = {};
+    _accessToken.user = {}
   }
-  return _accessToken;
-};
+  return _accessToken
+}
 
 module.exports.getRefreshToken = (refreshToken) => {
-  logger.debug("Enter oauth::getRefreshToken()");
+  logger.debug("Enter oauth::getRefreshToken()")
   return TokenModel.OAuthAccessTokenModel.findOne({
     refreshToken: refreshToken,
   })
     .populate("user")
-    .populate("client");
-};
+    .populate("client")
+}
 
 module.exports.getAuthorizationCode = (code) => {
-  logger.debug("Enter oauth::getAuthorizationCode()");
+  logger.debug("Enter oauth::getAuthorizationCode()")
   return TokenModel.OAuthCodeModel.findOne({ authorizationCode: code })
-    .populate("user")
-    .populate("client");
-};
+    //.populate("user")
+    .populate("client")
+}
 
 module.exports.getClient = (clientId, clientSecret) => {
-  logger.debug("Enter oauth::getClient()");
-  let params = { clientId: clientId };
+  logger.debug("Enter oauth::getClient()")
+  let params = { clientId: clientId }
   if (clientSecret) {
-    params.clientSecret = clientSecret;
+    params.clientSecret = clientSecret
   }
-  return TokenModel.OAuthClientModel.findOne(params);
-};
+  return TokenModel.OAuthClientModel.findOne(params)
+}
 
 module.exports.getUser = async (email, password) => {
-  logger.debug("Enter oauth::getUser()");
-  let user = await UserModel.findOne({ email: email });
+  logger.debug("Enter oauth::getUser()")
+  let user = await UserModel.findOne({ email: email })
   if (user && user.validatePassword(password)) {
-    return user;
+    return user
   }
-  return false;
-};
+  return false
+}
 
-module.exports.getUserFromClient = null;
+module.exports.getUserFromClient = null
 
 module.exports.saveToken = async (new_token, client, user) => {
-  logger.debug("Enter oauth::saveToken()");
+  logger.debug("Enter oauth::saveToken()")
 
   // check if a previous token is still valid - unexpired, if so, reuse token.
 
@@ -126,15 +126,15 @@ module.exports.saveToken = async (new_token, client, user) => {
     client: client._id,
   })
     .populate("user")
-    .populate("client");
+    .populate("client")
 
   if (token) {
-    token = token.toObject();
-    const expiresAt = (new Date(token.accessTokenExpiresAt)).getTime();
-    const now = (new Date()).getTime();
+    token = token.toObject()
+    const expiresAt = (new Date(token.accessTokenExpiresAt)).getTime()
+    const now = (new Date()).getTime()
 
     if (expiresAt > now) {
-      return getCustomTokenProperties(token);
+      return getCustomTokenProperties(token)
     }
   }
 
@@ -142,7 +142,7 @@ module.exports.saveToken = async (new_token, client, user) => {
   let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
     user: user._id,
     client: client._id,
-  });
+  })
 
   token = (
     await TokenModel.OAuthAccessTokenModel.create({
@@ -154,46 +154,46 @@ module.exports.saveToken = async (new_token, client, user) => {
       refreshTokenExpiresAt: new_token.refreshTokenExpiresAt,
       scope: new_token.scope,
     })
-  ).toObject();
+  ).toObject()
 
-  return getCustomTokenProperties(token);
-};
+  return getCustomTokenProperties(token)
+}
 
 const getCustomTokenProperties = (token) => {
   // set refresh expriation time
-  token.refresh_token_expires_at = (new Date(token.refreshTokenExpiresAt)).getTime(); // ms time to expire
+  token.refresh_token_expires_at = (new Date(token.refreshTokenExpiresAt)).getTime() // ms time to expire
 
-  delete token._id;
-  delete token.createdAt;
-  delete token.__v;
+  delete token._id
+  delete token.createdAt
+  delete token.__v
 
-  return token;
+  return token
 }
 
 module.exports.saveAuthorizationCode = (code, client, user) => {
-  logger.debug("Enter oauth::saveAuthorizationCode()");
+  logger.debug("Enter oauth::saveAuthorizationCode()")
   let authCode = new TokenModel.OAuthCodeModel({
     user: user.id,
     client: client.id,
     authorizationCode: code.authorizationCode,
     expiresAt: code.expiresAt,
     scope: code.scope,
-  });
-  return authCode.save();
-};
+  })
+  return authCode.save()
+}
 
 module.exports.revokeToken = async (accessToken) => {
-  logger.debug("Enter oauth::revokeToken()");
+  logger.debug("Enter oauth::revokeToken()")
   let result = await TokenModel.OAuthAccessTokenModel.deleteOne({
     refreshToken: accessToken.refreshToken,
-  });
-  return result.deletedCount > 0;
-};
+  })
+  return result.deletedCount > 0
+}
 
 module.exports.revokeAuthorizationCode = async (code) => {
-  logger.debug("Enter oauth::revokeAuthorizationCode()");
+  logger.debug("Enter oauth::revokeAuthorizationCode()")
   let result = await TokenModel.OAuthCodeModel.deleteOne({
     authorizationCode: code.authorizationCode,
-  });
-  return result.deletedCount > 0;
-};
+  })
+  return result.deletedCount > 0
+}

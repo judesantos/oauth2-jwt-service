@@ -30,7 +30,6 @@ const OAuthCodeModel = oauthDb.model('OAuthCode', new oauthDb.Schema({
 }), 'oauth_auth_codes')
 
 OAuthClientModel = oauthDb.model('OAuthClient', new oauthDb.Schema({
-  user: { type: oauthDb.Schema.Types.ObjectId, ref: 'User' },
   clientId: { type: String },
   clientSecret: { type: String },
   grants: { type: Array },

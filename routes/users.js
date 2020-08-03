@@ -1,10 +1,10 @@
-const express = require("express");
+const express = require("express")
 
-const authorize = require("../controllers/authorize");
-const authenticate = require("../controllers/authenticate");
-const { find, findAll } = require("../controllers/users");
+const authorize = require("../controllers/authorize")
+const authenticate = require("../controllers/authenticate")
+const { find, findAll } = require("../controllers/users")
 
-const router = express.Router();
+const router = express.Router()
 
 router.get("/all", [
   authenticate.apiIsAuthenticated,
@@ -12,7 +12,7 @@ router.get("/all", [
     hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
   }),
   findAll,
-]);
+])
 
 router.get("/", [
   authenticate.apiIsAuthenticated,
@@ -20,6 +20,6 @@ router.get("/", [
     hasRole: ["SuperAdmin", "Admin", "Manager", "Supervisor"],
   }),
   find,
-]);
+])
 
-module.exports = router;
+module.exports = router

@@ -1,10 +1,10 @@
-const debug = require("debug")("yourtechy-oauth2:oauth");
+const debug = require("debug")("yourtechy-oauth2:oauth")
 
-const router = require("express").Router();
-const OAuthServer = require("express-oauth-server");
-const OAuthModel = require("../models/oauth");
+const router = require("express").Router()
+const OAuthServer = require("express-oauth-server")
+const OAuthModel = require("../models/oauth")
 
-const env = require("../.env");
+const env = require("../.env")
 
 /////////////////////////////////////////////////////////////////////
 // Server - Supports password, refresh token grant
@@ -23,7 +23,7 @@ const oauth = new OAuthServer({
   refreshTokenLifetime: env.jwt.refresh_token_expires,
   allowExtendedTokenAttributes: true,
   debug: !env.isProduction,
-});
+})
 
 /**
  * password authentication granter
@@ -36,7 +36,7 @@ const oauth = new OAuthServer({
  *    -H "Authorization: Basic base64'd-client:secret" \
  *    -H "Content-Type: application/x-www-form-urlencoded"
  */
-router.post("/oauth/access_token", oauth.token());
+router.post("/oauth/access_token", oauth.token())
 
 /**
  * refresh token
@@ -48,6 +48,6 @@ router.post("/oauth/access_token", oauth.token());
  *    -H "Authorization: Basic YXBwbGljYXRpb246c2VjcmV0" \
  *    -H "Content-Type: application/x-www-form-urlencoded"
  */
-router.post("/oauth/refresh_token", oauth.token());
+router.post("/oauth/refresh_token", oauth.token())
 
-module.exports = router;
+module.exports = router

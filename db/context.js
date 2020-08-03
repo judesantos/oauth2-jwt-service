@@ -7,7 +7,7 @@ let dbConnections = {}
 
 const DbContext = {
   useDb: (name) => {
-    return dbConnections[name];
+    return dbConnections[name]
   },
   addDb: async (name, opts) => {
     const cnx = await connector.connect(

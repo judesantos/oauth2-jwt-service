@@ -1,12 +1,12 @@
-const { FORBIDDEN, OK } = require("http-status-codes");
+const { FORBIDDEN, OK } = require("http-status-codes")
 
 const {
   unauthorizedError,
   loginRequiredError,
   authorizationError,
-} = require("../lib/constants");
+} = require("../lib/constants")
 
-const logger = require("../lib/logger");
+const logger = require("../lib/logger")
 
 /**
  *
@@ -20,43 +20,43 @@ module.exports.isAuthorized = (
   }
 ) => {
   return (req, res, next) => {
-    logger.debug("Entering middleware::isAuthorized()");
-    const redirectLogin = () => res.redirect("/");
+    logger.debug("Entering middleware::isAuthorized()")
+    const redirectLogin = () => res.redirect("/")
 
-    if (!res.locals.user) return redirectLogin();
+    if (!res.locals.user) return redirectLogin()
 
-    const { role, _id } = res.locals.user;
+    const { role, _id } = res.locals.user
 
-    if (!_id || !role) return redirectLogin();
+    if (!_id || !role) return redirectLogin()
 
-    let isAuthorized = false;
+    let isAuthorized = false
     if (opts.hasRole.includes(role)) {
-      isAuthorized = true;
+      isAuthorized = true
     }
 
-    let error = { error: "Unauthorized user" };
-    let view = res.locals.view ? res.locals.view : "error";
+    let error = { error: "Unauthorized user" }
+    let view = res.locals.view ? res.locals.view : "error"
 
     if ("sign-in" === view) {
       if (isAuthorized) {
-        return res.redirect("/");
+        return res.redirect("/")
       }
     }
 
     if (isAuthorized) {
-      return next();
+      return next()
     } else if ("error" === view) {
       error = {
         error: {
           status: "Unauthorized user",
         },
         message: "Requires admin access",
-      };
+      }
     }
 
-    res.render(view, error);
-  };
-};
+    res.render(view, error)
+  }
+}
 
 /**
  *
@@ -70,21 +70,21 @@ module.exports.apiIsAuthorized = (
   }
 ) => {
   return (req, res, next) => {
-    logger.debug("Enter middleware::apiIsAuthorized()");
+    logger.debug("Enter middleware::apiIsAuthorized()")
     const redirectLogin = (msg) =>
-      res.status(FORBIDDEN).json(msg ? msg : "Unauthorized access to resource");
+      res.status(FORBIDDEN).json(msg ? msg : "Unauthorized access to resource")
 
-    if (!res.locals.user) return redirectLogin(loginRequiredError);
+    if (!res.locals.user) return redirectLogin(loginRequiredError)
 
-    const { role } = res.locals.user;
+    const { role } = res.locals.user
 
-    if (!role) return redirectLogin(unauthorizedError);
+    if (!role) return redirectLogin(unauthorizedError)
 
     if (undefined !== opts.hasRole.includes(role)) {
-      return next();
+      return next()
     }
 
-    logger.debug("Exit middleware::apiIsAuthorized() - authorization error");
-    redirectLogin(authorizationError);
-  };
-};
+    logger.debug("Exit middleware::apiIsAuthorized() - authorization error")
+    redirectLogin(authorizationError)
+  }
+}

@@ -6,6 +6,7 @@ const { body, validationResult } = require('express-validator')
 const OAuthModel = require('../models/oauth')
 
 const env = require('../.env')
+const logger = require('../lib/logger')
 
 const context = DbContext.useDb(env.mongoDb.oauth.name)
 
@@ -58,7 +59,7 @@ router.post('/sign-in', async (req, res, next) => {
 })
 
 router.get('/sign-out', (req, res, next) => {
-  req.session.destroy();
+  req.session.destroy()
   res.redirect('/')
 })
 
@@ -73,7 +74,7 @@ router.get('/users', (req, res, next) => {
 })
 
 const createFormObjectMap = (frmElements, errors = null) => {
-  let formMap = {};
+  let formMap = {}
   if (!Object.keys(frmElements).length) {
     throw new "createFormObjects error: element array is empty"
   }
@@ -90,7 +91,7 @@ const createFormObjectMap = (frmElements, errors = null) => {
   for (let err of errors) {
     let map = formMap[err.param]
     if (map) {
-      map.error = true;
+      map.error = true
       map.msg = err.msg
     }
   }
@@ -145,7 +146,7 @@ router.post('/register', [
 ], async (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    req.session.form = createFormObjectMap(req.body, errors.array());
+    req.session.form = createFormObjectMap(req.body, errors.array())
     req.flash('error', 'Validation failed! Check form fields for errors.')
 
     return res.redirect('/register')
@@ -154,50 +155,55 @@ router.post('/register', [
   let UserModel = context.model('User')
   let OAuthClientModel = context.model('OAuthClient')
 
-  // Create OAuth Client if none exists
-  let _client = await OAuthModel.getClient(
-    req.body.clientId,
-    req.body.clientSecret
-  )
+  try {
 
-  if (!_client) {
-    // Client - Avail of password, refresh token service
-    _client = new OAuthClientModel({
-      user: user.id,
-      clientId: req.body.clientId,
-      clientSecret: req.body.clientSecret,
-      companyName: req.body.companyName,
-      hostName: req.body.hostName,
-      grants: [
-        'refresh_token',
-        'password'
-      ]
+    // Create OAuth Client
+
+    let _client = await OAuthModel.getClient(
+      req.body.clientId,
+      req.body.clientSecret
+    )
+
+    if (!_client) {
+
+      _client = new OAuthClientModel({
+        clientId: req.body.clientId,
+        clientSecret: req.body.clientSecret,
+        companyName: req.body.companyName,
+        hostName: req.body.hostName,
+        grants: [
+          'refresh_token',
+          'password'
+        ]
+      })
+
+      _client.save()
+    }
+
+    // Create User
+
+    let _user = new UserModel({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      role: req.body.role,
+      verificationCode: crypto.randomBytes(16).toString('hex'),
+      active: true,
+      client: _client.id
     })
 
-    _client.save()
-  }
+    _user.setPassword(req.body.password)
 
-  // Create User
-  let _user = new UserModel({
-    fullName: req.body.fullName,
-    email: req.body.email,
-    role: req.body.role,
-    verificationCode: crypto.randomBytes(16).toString('hex'),
-    active: true,
-    clientId: _client._id
-  })
-  _user.setPassword(req.body.password)
-  let user = null
-  try {
-    user = await _user.save()
-  } catch (error) {
-    return res.send(error.errmsg, 422)
-  }
+    let user = await _user.save()
 
-  if (!user) {
-    return res.send('Error creating user', 422)
-  }
+  } catch (e) {
 
+    logger.error('/register error: ' + e.message);
+
+    req.session.form = createFormObjectMap(req.body)
+    req.flash('error', 'Add user failed: ' + e.message)
+
+    return res.redirect('/register')
+  }
 
   req.flash('message', 'Registration successful!')
 

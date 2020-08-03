@@ -1,9 +1,9 @@
-const { set } = require("../app");
+const { set } = require("../app")
 
 const nonBlockingWait = () => {
   return new Promise((resolve) => {
-    setImmediate(() => resolve());
-  });
+    setImmediate(() => resolve())
+  })
 }
 
 const util = {

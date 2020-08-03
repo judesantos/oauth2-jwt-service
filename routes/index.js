@@ -1,27 +1,27 @@
-const express = require("express");
-const OAuthServer = require("express-oauth-server");
-const OAuthModel = require("../models/oauth");
-const env = require("../.env");
+const express = require("express")
+const OAuthServer = require("express-oauth-server")
+const OAuthModel = require("../models/oauth")
+const env = require("../.env")
 
-const router = express.Router();
+const router = express.Router()
 
-router.use(require("./oauth"));
-router.use(require("./public"));
+router.use(require("./oauth"))
+router.use(require("./public"))
 
-const service = express.Router();
+const service = express.Router()
 
-service.use("/users", require("./users"));
+service.use("/users", require("./users"))
 
-router.use("/api/v1", service);
+router.use("/api/v1", service)
 
 const oauth = new OAuthServer({
   model: OAuthModel,
   requireClientAuthentication: { password: true },
   debug: !env.isProduction,
-});
+})
 
 router.get("/test-auth", oauth.authenticate(), (req, res) => {
-  res.json(res.locals);
-});
+  res.json(res.locals)
+})
 
-module.exports = router;
+module.exports = router
